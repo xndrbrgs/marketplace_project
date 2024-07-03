@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  profilePicture String?
+  location       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  products       Product[]
+  ordersBought   Order[]   @relation("BuyerOrders")
+  ordersSold     Order[]   @relation("SellerOrders")
+  reviews        Review[]
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  condition   Condition
+  images      String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id])
+  sellerId    String
+  seller      User      @relation(fields: [sellerId], references: [id])
+  reviews     Review[]
+  orders      Order[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  products Product[]
+}
+
+model Order {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  totalAmount Float
+  buyerId     String
+  buyer       User       @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId    String
+  seller      User       @relation("SellerOrders", fields: [sellerId], references: [id])
+  products    Product[]
+  shipping    Shipping[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      @default(0)
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Shipping {
+  id         String   @id @default(cuid())
+  address    String
+  city       String
+  state      String
+  postalCode String
+  country    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  orderId    String
+  order      Order?   @relation(fields: [orderId], references: [id])
+}
+
+enum Condition {
+  NEW
+  LIKE_NEW
+  USED
+  FOR_PARTS
+}

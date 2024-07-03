@@ -12,7 +12,6 @@ import UserAvatar from "./UserAvatar";
 async function Navbar() {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-  console.log(user);
   return (
     <nav className="max-w-7xl mx-auto py-8 flex justify-between items-center">
       <div className="text-2xl font-semibold">
